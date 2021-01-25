@@ -56,6 +56,14 @@ mm::ThreadStateGuard::~ThreadStateGuard() noexcept {
     SwitchThreadState(threadData_, oldState_);
 }
 
+mm::CurrentThreadStateGuard::CurrentThreadStateGuard(ThreadState state) noexcept {
+    oldState_ = SwitchThreadState(mm::ThreadRegistry::Instance().CurrentThreadData(), state);
+}
+
+mm::CurrentThreadStateGuard::~CurrentThreadStateGuard() noexcept {
+    SwitchThreadState(mm::ThreadRegistry::Instance().CurrentThreadData(), oldState_);
+}
+
 extern "C" ALWAYS_INLINE RUNTIME_NOTHROW void Kotlin_mm_switchThreadStateNative() {
     mm::SwitchThreadState(mm::ThreadRegistry::Instance().CurrentThreadData(), mm::ThreadState::kNative);
 }

@@ -214,4 +214,5 @@ internal fun <T> listOfInternal(vararg elements: T): List<T> {
 
 @PublishedApi
 @SymbolName("OnUnhandledException")
+@GCCritical
 external internal fun OnUnhandledException(throwable: Throwable)

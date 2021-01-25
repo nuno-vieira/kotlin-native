@@ -7,11 +7,13 @@ package kotlin.native
 import kotlin.native.concurrent.isFrozen
 import kotlin.native.concurrent.InvalidMutabilityException
 import kotlin.native.internal.Escapes
+import kotlin.native.internal.GCCritical
 
 /**
  * Initializes Kotlin runtime for the current thread, if not inited already.
  */
 @SymbolName("Kotlin_initRuntimeIfNeeded")
+@GCCritical
 external public fun initRuntimeIfNeeded(): Unit
 
 /**
@@ -19,6 +21,7 @@ external public fun initRuntimeIfNeeded(): Unit
  * Cannot be called from Kotlin frames holding references, thus deprecated.
  */
 @SymbolName("Kotlin_deinitRuntimeIfNeeded")
+@GCCritical
 @Deprecated("Deinit runtime can not be called from Kotlin", level = DeprecationLevel.ERROR)
 external public fun deinitRuntimeIfNeeded(): Unit
 
@@ -52,6 +55,7 @@ public fun setUnhandledExceptionHook(hook: ReportUnhandledExceptionHook): Report
 }
 
 @SymbolName("Kotlin_setUnhandledExceptionHook")
+@GCCritical
 @Escapes(0b01) // <hook> escapes
 external private fun setUnhandledExceptionHook0(hook: ReportUnhandledExceptionHook): ReportUnhandledExceptionHook?
 
@@ -60,4 +64,5 @@ external private fun setUnhandledExceptionHook0(hook: ReportUnhandledExceptionHo
  * @return 0 for `null` object, identity hash code otherwise.
  */
 @SymbolName("Kotlin_Any_hashCode")
+@GCCritical
 public external fun Any?.identityHashCode(): Int

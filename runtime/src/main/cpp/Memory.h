@@ -22,6 +22,7 @@
 #include "TypeInfo.h"
 #include "Atomic.h"
 #include "PointerBits.h"
+#include "Utils.hpp"
 
 typedef enum {
   // Must match to permTag() in Kotlin.
@@ -374,5 +375,29 @@ class ExceptionObjHolder {
  private:
    ObjHeader* obj_;
 };
+
+// We need to access to some parts of the new MM in the C++ part of the stdlib.
+// So we have to declare such parts in this header.
+namespace kotlin {
+namespace mm {
+
+enum class ThreadState {
+    kRunnable, kNative
+};
+
+class CurrentThreadStateGuard final : private Pinned {
+public:
+    explicit CurrentThreadStateGuard(ThreadState state) noexcept;
+    ~CurrentThreadStateGuard() noexcept;
+private:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+    // This field is used in the new MM and unused in the legacy MM.
+    ThreadState oldState_;
+#pragma clang diagnostic pop
+};
+
+} // namespace mm
+} // namespace kotlin
 
 #endif // RUNTIME_MEMORY_H

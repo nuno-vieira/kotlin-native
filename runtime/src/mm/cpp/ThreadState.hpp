@@ -7,14 +7,11 @@
 #define RUNTIME_MM_THREAD_STATE_H
 
 #include <Common.h>
+#include <Memory.h>
 #include <Utils.hpp>
 
 namespace kotlin {
 namespace mm {
-
-enum class ThreadState {
-    kRunnable, kNative
-};
 
 // Switches the state of the given thread to `newState` and returns the previous thread state.
 ALWAYS_INLINE ThreadState SwitchThreadState(ThreadData* threadData, ThreadState newState) noexcept;

@@ -6,29 +6,34 @@
 package kotlin.text
 
 import kotlin.native.concurrent.SharedImmutable
+import kotlin.native.internal.GCCritical
 
 /**
  * Returns the index within this string of the first occurrence of the specified character, starting from the specified offset.
  */
 @SymbolName("Kotlin_String_indexOfChar")
+@GCCritical
 internal actual external fun String.nativeIndexOf(ch: Char, fromIndex: Int): Int
 
 /**
  * Returns the index within this string of the first occurrence of the specified substring, starting from the specified offset.
  */
 @SymbolName("Kotlin_String_indexOfString")
+@GCCritical
 internal actual external fun String.nativeIndexOf(str: String, fromIndex: Int): Int
 
 /**
  * Returns the index within this string of the last occurrence of the specified character.
  */
 @SymbolName("Kotlin_String_lastIndexOfChar")
+@GCCritical
 internal actual external fun String.nativeLastIndexOf(ch: Char, fromIndex: Int): Int
 
 /**
  * Returns the index within this string of the last occurrence of the specified character, starting from the specified offset.
  */
 @SymbolName("Kotlin_String_lastIndexOfString")
+@GCCritical
 internal actual external fun String.nativeLastIndexOf(str: String, fromIndex: Int): Int
 
 /**
@@ -48,12 +53,14 @@ public actual fun String?.equals(other: String?, ignoreCase: Boolean): Boolean {
 }
 
 @SymbolName("Kotlin_String_equalsIgnoreCase")
+@GCCritical
 internal external fun stringEqualsIgnoreCase(thiz: String, other: String): Boolean
 
 /**
  * Returns a new string with all occurrences of [oldChar] replaced with [newChar].
  */
 @SymbolName("Kotlin_String_replace")
+@GCCritical
 public actual external fun String.replace(
         oldChar: Char, newChar: Char, ignoreCase: Boolean): String
 
@@ -148,6 +155,7 @@ public actual fun CharSequence.regionMatches(
  * @param length the length of the substring to compare.
  */
 @SymbolName("Kotlin_String_regionMatches")
+@GCCritical
 public external fun String.regionMatches(
         thisOffset: Int, other: String, otherOffset: Int, length: Int,
         ignoreCase: Boolean = false): Boolean
@@ -156,6 +164,7 @@ public external fun String.regionMatches(
  * Returns a copy of this string converted to upper case using the rules of the default locale.
  */
 @SymbolName("Kotlin_String_toUpperCase")
+@GCCritical
 public actual external fun String.toUpperCase(): String
 
 /**
@@ -174,6 +183,7 @@ public actual fun String.uppercase(): String = toUpperCase()
  * Returns a copy of this string converted to lower case using the rules of the default locale.
  */
 @SymbolName("Kotlin_String_toLowerCase")
+@GCCritical
 public actual external fun String.toLowerCase(): String
 
 /**
@@ -194,6 +204,7 @@ public actual fun String.lowercase(): String = toLowerCase()
 public actual fun String.toCharArray(): CharArray = toCharArray(this, 0, length)
 
 @SymbolName("Kotlin_String_toCharArray")
+@GCCritical
 private external fun toCharArray(string: String, start: Int, size: Int): CharArray
 
 /**
@@ -359,6 +370,7 @@ public actual fun String.encodeToByteArray(startIndex: Int, endIndex: Int, throw
 }
 
 @SymbolName("Kotlin_String_compareToIgnoreCase")
+@GCCritical
 internal external fun compareToIgnoreCase(thiz: String, other: String): Int
 
 public actual fun String.compareTo(other: String, ignoreCase: Boolean): Int {

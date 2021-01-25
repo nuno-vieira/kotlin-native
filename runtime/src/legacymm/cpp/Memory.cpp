@@ -3691,3 +3691,11 @@ ALWAYS_INLINE RUNTIME_NOTHROW void Kotlin_mm_safePointExceptionUnwind() {
 }
 
 } // extern "C"
+
+kotlin::mm::CurrentThreadStateGuard::CurrentThreadStateGuard(ThreadState state) noexcept {
+    // no-op, used by the new MM only.
+}
+
+kotlin::mm::CurrentThreadStateGuard::~CurrentThreadStateGuard() noexcept {
+    // no-op, used by the new MM only.
+}
