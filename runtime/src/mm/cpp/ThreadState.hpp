@@ -16,10 +16,14 @@ enum class ThreadState {
     kRunnable, kNative
 };
 
-// Switches the state of the current thread to `newState` and returns the previous thread state.
+// Switches the state of the given thread to `newState` and returns the previous thread state.
 ALWAYS_INLINE ThreadState SwitchThreadState(ThreadData* threadData, ThreadState newState) noexcept;
 
+// Asserts that the given thread is in the given state.
 ALWAYS_INLINE void AssertThreadState(ThreadData* threadData, ThreadState expected) noexcept;
+
+// Asserts that the current thread is in the the given state.
+ALWAYS_INLINE void AssertThreadState(ThreadState expected) noexcept;
 
 class ThreadStateGuard final : private Pinned {
 public:

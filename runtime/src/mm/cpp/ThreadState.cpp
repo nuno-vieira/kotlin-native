@@ -25,7 +25,7 @@ const char* stateToString(mm::ThreadState state) noexcept {
 
 } // namespace
 
-// Switches the state of the current thread to `newState` and returns the previous state.
+// Switches the state of the given thread to `newState` and returns the previous state.
 ALWAYS_INLINE mm::ThreadState mm::SwitchThreadState(ThreadData* threadData, ThreadState newState) noexcept {
     auto oldState = threadData->setState(newState);
     // TODO(perf): Mesaure the impact of this assert in debug and opt modes.
@@ -35,11 +35,17 @@ ALWAYS_INLINE mm::ThreadState mm::SwitchThreadState(ThreadData* threadData, Thre
     return oldState;
 }
 
+// Asserts that the given thread is in the given state.
 ALWAYS_INLINE void mm::AssertThreadState(ThreadData* threadData, ThreadState expected) noexcept {
     auto actual = threadData->state();
     RuntimeAssert(actual == expected,
                   "Unexpected thread state. Expected: %s. Actual: %s.",
                   stateToString(expected), stateToString(actual));
+}
+
+// Asserts that the current thread is in the the given state.
+ALWAYS_INLINE void mm::AssertThreadState(ThreadState expected) noexcept {
+    AssertThreadState(ThreadRegistry::Instance().CurrentThreadData(), expected);
 }
 
 mm::ThreadStateGuard::ThreadStateGuard(ThreadData* threadData, ThreadState state) noexcept : threadData_(threadData) {
