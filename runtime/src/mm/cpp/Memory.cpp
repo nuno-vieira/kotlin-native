@@ -215,11 +215,13 @@ extern "C" OBJ_GETTER(ReadHeapRefNoLock, ObjHeader* object, int32_t index) {
 
 extern "C" RUNTIME_NOTHROW void EnterFrame(ObjHeader** start, int parameters, int count) {
     auto* threadData = mm::ThreadRegistry::Instance().CurrentThreadData();
+    mm::AssertThreadState(threadData, mm::ThreadState::kRunnable);
     threadData->shadowStack().EnterFrame(start, parameters, count);
 }
 
 extern "C" RUNTIME_NOTHROW void LeaveFrame(ObjHeader** start, int parameters, int count) {
     auto* threadData = mm::ThreadRegistry::Instance().CurrentThreadData();
+    mm::AssertThreadState(threadData, mm::ThreadState::kRunnable);
     threadData->shadowStack().LeaveFrame(start, parameters, count);
 }
 
