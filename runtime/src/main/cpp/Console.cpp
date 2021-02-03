@@ -28,6 +28,8 @@ extern "C" {
 // io/Console.kt
 void Kotlin_io_Console_print(KString message) {
     if (message->type_info() != theStringTypeInfo) {
+        // Call of a Kotlin method, switch thread state.
+        kotlin::mm::CurrentThreadStateGuard guard(kotlin::mm::ThreadState::kRunnable);
         ThrowClassCastException(message->obj(), theStringTypeInfo);
     }
     // TODO: system stdout must be aware about UTF-8.
