@@ -38,7 +38,7 @@ private:
     GlobalsRegistry globalsRegistry_;
     StableRefRegistry stableRefRegistry_;
     ObjectFactory<GC> objectFactory_;
-    GC gc_;
+    GC gc_{objectFactory_};
 };
 
 } // namespace mm
