@@ -13,6 +13,9 @@
 namespace kotlin {
 namespace mm {
 
+template <typename GC>
+class ObjectFactory;
+
 // No-op GC is a GC that does not free memory.
 // TODO: It can be made more efficient.
 class NoOpGC : private Pinned {
@@ -38,7 +41,7 @@ public:
     private:
     };
 
-    NoOpGC() noexcept = default;
+    explicit NoOpGC(ObjectFactory<NoOpGC>& objectFactory) noexcept {}
     ~NoOpGC() = default;
 
 private:
