@@ -503,6 +503,7 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
         val ctorFunction = LLVMAddFunction(context.llvmModule, "", kVoidFuncType)!!
         LLVMSetLinkage(ctorFunction, LLVMLinkage.LLVMPrivateLinkage)
         generateFunction(codegen, ctorFunction) {
+            needsSafePoints = false
             call(context.llvm.appendToInitalizersTail, listOf(initNodePtr))
             ret(null)
         }
@@ -2403,6 +2404,7 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
             // Runtime is linked into stdlib module only, so import runtime global from it.
             val global = codegen.importGlobal(name, value.llvmType, context.standardLlvmSymbolsOrigin)
             val initializer = generateFunction(codegen, functionType(voidType, false), "") {
+                needsSafePoints = false
                 store(value.llvm, global)
                 ret(null)
             }
@@ -2504,6 +2506,7 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
 
     private fun appendStaticInitializers(ctorFunction: LLVMValueRef, initializers: List<LLVMValueRef>) {
         generateFunction(codegen, ctorFunction) {
+            needsSafePoints = false
             val initGuardName = ctorFunction.name.orEmpty() + "_guard"
             val initGuard = LLVMAddGlobal(context.llvmModule, int32Type, initGuardName)
             LLVMSetInitializer(initGuard, kImmZero)
@@ -2538,6 +2541,7 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
             val globalCtorFunction = LLVMAddFunction(context.llvmModule, "_Konan_constructors", kVoidFuncType)!!
             LLVMSetLinkage(globalCtorFunction, LLVMLinkage.LLVMPrivateLinkage)
             generateFunction(codegen, globalCtorFunction) {
+                needsSafePoints = false
                 ctorFunctions.forEach {
                     call(it, emptyList(), Lifetime.IRRELEVANT,
                             exceptionHandler = ExceptionHandler.Caller, verbatim = true)
