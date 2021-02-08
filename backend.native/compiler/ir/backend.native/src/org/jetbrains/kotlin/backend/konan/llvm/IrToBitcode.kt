@@ -2538,6 +2538,7 @@ internal class CodeGeneratorVisitor(val context: Context, val lifetimes: Map<IrE
             val globalCtorFunction = LLVMAddFunction(context.llvmModule, "_Konan_constructors", kVoidFuncType)!!
             LLVMSetLinkage(globalCtorFunction, LLVMLinkage.LLVMPrivateLinkage)
             generateFunction(codegen, globalCtorFunction) {
+                needsRuntimeInit = true
                 ctorFunctions.forEach {
                     call(it, emptyList(), Lifetime.IRRELEVANT,
                             exceptionHandler = ExceptionHandler.Caller, verbatim = true)
