@@ -65,9 +65,17 @@ void mm::MarkAndSweep::Collection::Mark() noexcept {
         stack_.pop_back();
 
         if (top == nullptr) continue;
+        // Handle initializing singleton.
+        // TODO: Probably not the place for it.
+        if (top == reinterpret_cast<ObjHeader*>(1)) continue;
+
 
         if (top->heap()) {
-            mm::ObjectFactory<MarkAndSweep>::NodeRef::From(top).GCObjectData().setColor(ObjectData::Color::kBlack);
+            auto& objectData = mm::ObjectFactory<MarkAndSweep>::NodeRef::From(top).GCObjectData();
+            if (objectData.color() == ObjectData::Color::kBlack) {
+                continue;
+            }
+            objectData.setColor(ObjectData::Color::kBlack);
         }
 
         traverseObjectFields(top, [this](ObjHeader* field) noexcept { stack_.push_back(field); });
