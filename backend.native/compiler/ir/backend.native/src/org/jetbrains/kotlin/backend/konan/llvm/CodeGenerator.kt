@@ -350,6 +350,8 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
     // for example.
     var needsRuntimeInit = false
 
+    var needsSafePoints = true
+
     init {
         irFunction?.let {
             if (!irFunction.isExported()) {
@@ -1267,7 +1269,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
                 returnType == voidType -> {
                     releaseVars()
                     assert(returnSlot == null)
-                    if (context.memoryModel == MemoryModel.EXPERIMENTAL)
+                    if (needsSafePoints && context.memoryModel == MemoryModel.EXPERIMENTAL)
                         call(context.llvm.Kotlin_mm_safePointFunctionEpilogue, emptyList())
                     LLVMBuildRetVoid(builder)
                 }
@@ -1278,7 +1280,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
                         updateReturnRef(returnPhi, returnSlot!!)
                     }
                     releaseVars()
-                    if (context.memoryModel == MemoryModel.EXPERIMENTAL)
+                    if (needsSafePoints && context.memoryModel == MemoryModel.EXPERIMENTAL)
                         call(context.llvm.Kotlin_mm_safePointFunctionEpilogue, emptyList())
                     LLVMBuildRet(builder, returnPhi)
                 }
@@ -1320,7 +1322,7 @@ internal class FunctionGenerationContext(val function: LLVMValueRef,
             }
 
             releaseVars()
-            if (context.memoryModel == MemoryModel.EXPERIMENTAL)
+            if (needsSafePoints && context.memoryModel == MemoryModel.EXPERIMENTAL)
                 call(context.llvm.Kotlin_mm_safePointExceptionUnwind, emptyList())
             LLVMBuildResume(builder, landingpad)
         }
