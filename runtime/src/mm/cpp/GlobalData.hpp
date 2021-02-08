@@ -19,14 +19,7 @@ namespace mm {
 // Global (de)initialization is undefined in C++. Use single global singleton to define it for simplicity.
 class GlobalData : private Pinned {
 public:
-    static GlobalData& Instance() noexcept {
-        // `GlobalData` is required during Kotlin's globals initialization. If we put `GlobalData`
-        // as a regular global, then it's possible that Kotlin's globals are initialized before `GlobalData`.
-        // So make it a local static instead.
-        // TODO: This has a performance impact: every access has to check if `instance` is already initialized.
-        static GlobalData instance;
-        return instance;
-    }
+    static GlobalData& Instance() noexcept { return instance_; }
 
     ThreadRegistry& threadRegistry() noexcept { return threadRegistry_; }
     GlobalsRegistry& globalsRegistry() noexcept { return globalsRegistry_; }
@@ -37,6 +30,8 @@ public:
 private:
     GlobalData();
     ~GlobalData();
+
+    static GlobalData instance_;
 
     ThreadRegistry threadRegistry_;
     GlobalsRegistry globalsRegistry_;
