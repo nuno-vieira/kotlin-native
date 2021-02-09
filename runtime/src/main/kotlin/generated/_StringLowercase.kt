@@ -36,8 +36,7 @@ internal fun Int.isCased(): Boolean {
         }
     }
     val index = binarySearchRange(casedStart, this)
-    val end = casedEnd[index]
-    return this <= end
+    return index >= 0 && this <= casedEnd[index]
 }
 
 @SharedImmutable
@@ -76,8 +75,7 @@ internal fun Int.isCaseIgnorable(): Boolean {
         }
     }
     val index = binarySearchRange(caseIgnorableStart, this)
-    val end = caseIgnorableEnd[index]
-    return this <= end
+    return index >= 0 && this <= caseIgnorableEnd[index]
 }
 
 private fun String.codePointBefore(index: Int): Int {
@@ -91,21 +89,32 @@ private fun String.codePointBefore(index: Int): Int {
     return low.toInt()
 }
 
+// \p{cased} (\p{case-ignorable})* Sigma !( (\p{case-ignorable})* \p{cased} )
+// The regular-expression operator * is "possessive", consuming as many characters as possible, with no backup.
+// This is significant in the case of Final_Sigma, because the sets of case-ignorable and cased characters are not disjoint.
 private fun String.isFinalSigmaAt(index: Int): Boolean {
     if (this[index] == '\u03A3' && index > 0) {
         var i = index - 1
-        var codePoint: Int = codePointBefore(i)
-        while (i >= 0 && codePoint.isCaseIgnorable()) {
-            i -= codePoint.charCount()
+        var codePoint: Int = 0
+        while (i >= 0) {
             codePoint = codePointBefore(i)
+            if (codePoint.isCaseIgnorable()) {
+                i -= codePoint.charCount()
+            } else {
+                break
+            }
         }
         if (i >= 0 && codePoint.isCased()) {
             var j = index + 1
-            codePoint = codePointAt(j)
-            while (j < length && codePoint.isCaseIgnorable()) {
-                j += codePoint.charCount()
+            while (j < length) {
+                codePoint = codePointAt(j)
+                if (codePoint.isCaseIgnorable()) {
+                    j += codePoint.charCount()
+                } else {
+                    break
+                }
             }
-            if (j < length && !codePoint.isCased()) {
+            if (j >= length || !codePoint.isCased()) {
                 return true
             }
         }
@@ -117,7 +126,7 @@ internal fun String.lowercaseImpl(): String {
     var unchangedIndex = 0
     while (unchangedIndex < this.length) {
         val codePoint = codePointAt(unchangedIndex)
-        if (codePoint.lowercaseCodePoint() != codePoint) { // '\u03a3' has a lowercase mapping in UnicodeData.txt, no need to check it separately
+        if (codePoint.lowercaseCodePoint() != codePoint) { // '\u0130' and '\u03A3' have lowercase corresponding mapping in UnicodeData.txt, no need to check them separately
             break
         }
         unchangedIndex += codePoint.charCount()
@@ -132,8 +141,8 @@ internal fun String.lowercaseImpl(): String {
     var index = unchangedIndex
 
     while (index < this.length) {
-        if (this[index] == '\u03a3') {
-            sb.append("\u03C2")
+        if (this[index] == '\u0130') {
+            sb.append("\u0069\u0307")
             index++
             continue
         }
