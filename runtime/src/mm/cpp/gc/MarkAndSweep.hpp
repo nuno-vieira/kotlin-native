@@ -53,6 +53,10 @@ public:
 
     private:
         MarkAndSweep& gc_;
+        size_t allocatedBytes_ = 0;
+        size_t safePointsCounter_ = 0;
+        static constexpr size_t kAllocationThresholdBytes = 1000;
+        static constexpr size_t kSafePointsThreshold = 100;
     };
 
     class Collection {
