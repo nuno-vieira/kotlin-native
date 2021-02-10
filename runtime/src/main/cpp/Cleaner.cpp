@@ -90,6 +90,7 @@ void ShutdownCleaners(bool executeScheduledCleaners) {
     RuntimeAssert(worker > 0, "Cleaner worker must be fully initialized here");
 
     atomicSet(&globalCleanerWorker, kCleanerWorkerShutdown);
+    // TODO: Kotlin call. ShutdownCleaners is called from runtime shutdown. Should we switch state to runnable there?
     Kotlin_CleanerImpl_shutdownCleanerWorker(worker, executeScheduledCleaners);
     WaitNativeWorkerTermination(worker);
 }
@@ -104,7 +105,7 @@ extern "C" KInt Kotlin_CleanerImpl_getCleanerWorker() {
                 // Someone else is trying to initialize the worker. Try again.
                 continue;
             }
-            worker = Kotlin_CleanerImpl_createCleanerWorker();
+            worker = kotlin::callKotlin(Kotlin_CleanerImpl_createCleanerWorker);
             if (!compareAndSet(&globalCleanerWorker, kCleanerWorkerInitializing, worker)) {
                 RuntimeCheck(false, "Someone interrupted worker initializing");
             }
