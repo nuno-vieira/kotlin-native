@@ -3707,3 +3707,7 @@ kotlin::mm::CurrentThreadStateGuard::CurrentThreadStateGuard(ThreadState state) 
 kotlin::mm::CurrentThreadStateGuard::~CurrentThreadStateGuard() noexcept {
     // no-op, used by the new MM only.
 }
+
+ALWAYS_INLINE void kotlin::mm::AssertThreadState(ThreadState expected) noexcept {
+    // no-op, used by the new MM only.
+}

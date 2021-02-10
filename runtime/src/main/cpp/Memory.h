@@ -399,7 +399,17 @@ private:
 #pragma clang diagnostic pop
 };
 
+// Asserts that the current thread is in the the given state.
+ALWAYS_INLINE void AssertThreadState(ThreadState expected) noexcept;
+
 } // namespace mm
+
+template <typename... Args, typename R>
+ALWAYS_INLINE R callKotlin(R(*kotlinFunction)(Args...), Args... args) {
+    mm::CurrentThreadStateGuard guard(mm::ThreadState::kRunnable);
+    return kotlinFunction(args...);
+}
+
 } // namespace kotlin
 
 #endif // RUNTIME_MEMORY_H
