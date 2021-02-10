@@ -395,14 +395,7 @@ extern "C" RUNTIME_NOTHROW void Kotlin_mm_safePointExceptionUnwind() {
     threadData->gc().SafePointExceptionUnwind();
 }
 
-// static
-ObjHeader* ExceptionObjHolder::GetCurrentException() noexcept {
-    auto* threadData = mm::ThreadRegistry::Instance().CurrentThreadData();
-    return threadData->currentException().currentException();
-}
-
-// static
-void ExceptionObjHolder::SetCurrentException(ObjHeader* obj) noexcept {
+extern "C" RUNTIME_NOTHROW void SetCurrentException(ObjHeader* obj) {
     auto* threadData = mm::ThreadRegistry::Instance().CurrentThreadData();
     threadData->currentException().SetCurrentException(obj);
 }

@@ -911,6 +911,7 @@ internal class CAdapterGenerator(val context: Context) : DeclarationDescriptorVi
         |void LeaveFrame(KObjHeader** start, int parameters, int count) RUNTIME_NOTHROW;
         |void Kotlin_initRuntimeIfNeeded();
         |void TerminateWithUnhandledException(KObjHeader*) RUNTIME_NORETURN;
+        |void SetCurrentException(KObjHeader*) RUNTIME_NOTHROW;
         |
         |KObjHeader* CreateStringFromCString(const char*, KObjHeader**);
         |char* CreateCStringFromString(const KObjHeader*);
@@ -949,10 +950,18 @@ internal class CAdapterGenerator(val context: Context) : DeclarationDescriptorVi
         | public:
         |  explicit ExceptionObjHolder(const KObjHeader* obj): obj_(nullptr) {
         |    ::UpdateHeapRef(&obj_, obj);
+        |    SetCurrentException(obj_);
         |  }
         |  ~ExceptionObjHolder() {
         |    UpdateHeapRef(&obj_, nullptr);
+        |    SetCurrentException(nullptr);
         |  }
+        |  
+        |  ExceptionObjHolder(const ExceptionObjHolder&) = delete;
+        |  ExceptionObjHolder(ExceptionObjHolder&&) = delete;
+        |  ExceptionObjHolder& operator=(const ExceptionObjHolder&) = delete;
+        |  ExceptionObjHolder& operator=(ExceptionObjHolder&&) = delete;
+        |  
         |  KObjHeader* obj() { return obj_; }
         | private:
         |  KObjHeader* obj_;

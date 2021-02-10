@@ -312,6 +312,8 @@ void Kotlin_mm_safePointFunctionEpilogue() RUNTIME_NOTHROW;
 void Kotlin_mm_safePointWhileLoopBody() RUNTIME_NOTHROW;
 void Kotlin_mm_safePointExceptionUnwind() RUNTIME_NOTHROW;
 
+RUNTIME_NOTHROW void SetCurrentException(ObjHeader* obj);
+
 #ifdef __cplusplus
 }
 #endif
@@ -358,7 +360,7 @@ class ObjHolder {
 };
 
 //! TODO Follow the Rule of Zero to prevent dangling on unintented copy ctor
-class ExceptionObjHolder : private kotlin::Pinned {
+class ExceptionObjHolder {
  public:
    explicit ExceptionObjHolder(const ObjHeader* obj) {
      ::SetHeapRef(&obj_, obj);
@@ -370,15 +372,16 @@ class ExceptionObjHolder : private kotlin::Pinned {
      SetCurrentException(nullptr);
    }
 
+   ExceptionObjHolder(const ExceptionObjHolder&) = delete;
+   ExceptionObjHolder(ExceptionObjHolder&&) = delete;
+   ExceptionObjHolder& operator=(const ExceptionObjHolder&) = delete;
+   ExceptionObjHolder& operator=(ExceptionObjHolder&&) = delete;
+
    ObjHeader* obj() { return obj_; }
 
    const ObjHeader* obj() const { return obj_; }
 
-   static ObjHeader* GetCurrentException() noexcept;
-
  private:
-   static void SetCurrentException(ObjHeader* obj) noexcept;
-
    ObjHeader* obj_;
 };
 
