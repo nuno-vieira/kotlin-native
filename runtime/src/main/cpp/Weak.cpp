@@ -59,11 +59,13 @@ OBJ_GETTER(makePermanentWeakReferenceImpl, ObjHeader*);
 // Retrieve link on the counter object.
 OBJ_GETTER(Konan_getWeakReferenceImpl, ObjHeader* referred) {
     if (referred->permanent()) {
+        // Kotlin call.
         RETURN_RESULT_OF(makePermanentWeakReferenceImpl, referred);
     }
 
 #if KONAN_OBJC_INTEROP
   if (IsInstance(referred, theObjCObjectWrapperTypeInfo)) {
+      // Kotlin call
       RETURN_RESULT_OF(makeObjCWeakReferenceImpl, referred->GetAssociatedObject());
   }
 #endif // KONAN_OBJC_INTEROP
@@ -71,6 +73,7 @@ OBJ_GETTER(Konan_getWeakReferenceImpl, ObjHeader* referred) {
   ObjHeader** weakCounterLocation = referred->GetWeakCounterLocation();
   if (*weakCounterLocation == nullptr) {
       ObjHolder counterHolder;
+      // Kotlin call.
       // Cast unneeded, just to emphasize we store an object reference as void*.
       ObjHeader* counter = makeWeakReferenceCounter(reinterpret_cast<void*>(referred), counterHolder.slot());
       UpdateHeapRefIfNull(weakCounterLocation, counter);
