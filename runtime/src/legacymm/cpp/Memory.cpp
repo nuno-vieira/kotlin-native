@@ -3691,3 +3691,9 @@ ALWAYS_INLINE RUNTIME_NOTHROW void Kotlin_mm_safePointExceptionUnwind() {
 }
 
 } // extern "C"
+
+// static
+ObjHeader* ExceptionObjHolder::GetCurrentException() noexcept { return nullptr; }
+
+// static
+void ExceptionObjHolder::SetCurrentException(ObjHeader* obj) noexcept {}
