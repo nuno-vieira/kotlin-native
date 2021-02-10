@@ -2392,6 +2392,7 @@ task array_list2(type: KonanLocalTest) {
 }
 
 task hash_map0(type: KonanLocalTest) {
+    enabled = !isExperimentalMM // Very slow with STW M&S because of a ton of repetitions.
     goldValue = "OK\n"
     source = "runtime/collections/hash_map0.kt"
 }
