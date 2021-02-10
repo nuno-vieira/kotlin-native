@@ -461,7 +461,7 @@ private class ExportedElement(val kind: ElementKind,
                     "result", cfunction[0], Direction.KOTLIN_TO_C, builder)
             builder.append("  return $result;\n")
         }
-        builder.append("   } catch (ExceptionObjHolder& e) { TerminateWithUnhandledException(e.obj()); } \n")
+        builder.append("   } catch (...) { std::terminate(); } \n")
 
         builder.append("}\n")
 
@@ -891,6 +891,8 @@ internal class CAdapterGenerator(val context: Context) : DeclarationDescriptorVi
                 .cAdapterCpp
                 .printWriter()
 
+        output("#include <exception>")
+
         // Include header into C++ source.
         headerFile.forEachLine { it -> output(it) }
 
@@ -915,7 +917,6 @@ internal class CAdapterGenerator(val context: Context) : DeclarationDescriptorVi
         |void EnterFrame(KObjHeader** start, int parameters, int count) RUNTIME_NOTHROW;
         |void LeaveFrame(KObjHeader** start, int parameters, int count) RUNTIME_NOTHROW;
         |void Kotlin_initRuntimeIfNeeded();
-        |void TerminateWithUnhandledException(KObjHeader*) RUNTIME_NORETURN;
         |
         |KObjHeader* CreateStringFromCString(const char*, KObjHeader**);
         |char* CreateCStringFromString(const KObjHeader*);
@@ -948,19 +949,6 @@ internal class CAdapterGenerator(val context: Context) : DeclarationDescriptorVi
         |  KObjHeader* obj_;
         |
         |  KObjHeader** frame() { return reinterpret_cast<KObjHeader**>(&frame_); }
-        |};
-        |
-        |class ExceptionObjHolder {
-        | public:
-        |  explicit ExceptionObjHolder(const KObjHeader* obj): obj_(nullptr) {
-        |    ::UpdateHeapRef(&obj_, obj);
-        |  }
-        |  ~ExceptionObjHolder() {
-        |    UpdateHeapRef(&obj_, nullptr);
-        |  }
-        |  KObjHeader* obj() { return obj_; }
-        | private:
-        |  KObjHeader* obj_;
         |};
         |
         |static void DisposeStablePointerImpl(${prefix}_KNativePtr ptr) {

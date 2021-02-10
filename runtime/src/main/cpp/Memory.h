@@ -22,6 +22,7 @@
 #include "TypeInfo.h"
 #include "Atomic.h"
 #include "PointerBits.h"
+#include "Utils.hpp"
 
 typedef enum {
   // Must match to permTag() in Kotlin.
@@ -311,6 +312,8 @@ void Kotlin_mm_safePointFunctionEpilogue() RUNTIME_NOTHROW;
 void Kotlin_mm_safePointWhileLoopBody() RUNTIME_NOTHROW;
 void Kotlin_mm_safePointExceptionUnwind() RUNTIME_NOTHROW;
 
+RUNTIME_NOTHROW void SetCurrentException(ObjHeader* obj);
+
 #ifdef __cplusplus
 }
 #endif
@@ -361,11 +364,18 @@ class ExceptionObjHolder {
  public:
    explicit ExceptionObjHolder(const ObjHeader* obj) {
      ::SetHeapRef(&obj_, obj);
+     SetCurrentException(obj_);
    }
 
    ~ExceptionObjHolder() {
      ZeroHeapRef(&obj_);
+     SetCurrentException(nullptr);
    }
+
+   ExceptionObjHolder(const ExceptionObjHolder&) = delete;
+   ExceptionObjHolder(ExceptionObjHolder&&) = delete;
+   ExceptionObjHolder& operator=(const ExceptionObjHolder&) = delete;
+   ExceptionObjHolder& operator=(ExceptionObjHolder&&) = delete;
 
    ObjHeader* obj() { return obj_; }
 
