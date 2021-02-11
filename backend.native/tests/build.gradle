@@ -4159,8 +4159,7 @@ interopTest("interop_concurrentTerminate") {
 }
 
 interopTest("interop_incompleteTypes") {
-    disabled = (project.testTarget == 'wasm32') || // No interop for wasm yet.
-        isExperimentalMM // UB in test, relies on a lifetime of a temporary outside of its scope.
+    disabled = (project.testTarget == 'wasm32') // No interop for wasm yet.
     source = "interop/incomplete_types/main.kt"
     interop = 'incomplete_types'
 }
