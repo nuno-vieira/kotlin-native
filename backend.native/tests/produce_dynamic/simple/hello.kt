@@ -8,7 +8,6 @@
 import kotlinx.cinterop.*
 
 import kotlin.native.CName
-import kotlin.native.concurrent.freeze
 
 // Top level functions.
 fun hello() {
@@ -118,20 +117,6 @@ fun useInlineClasses(ic1: IC1, ic2: IC2, ic3: IC3) {
 fun testNullableWithNulls(arg1: Int?, arg2: Unit?) {
     assert(arg1 == null)
     assert(arg2 == null)
-}
-
-fun setCErrorHandler(callback: CPointer<CFunction<(CPointer<ByteVar>) -> Unit>>?) {
-    setUnhandledExceptionHook({
-        throwable: Throwable ->
-        memScoped {
-            callback!!(throwable.toString().cstr.ptr)
-        }
-        kotlin.system.exitProcess(0)
-    }.freeze())
-}
-
-fun throwException() {
-    throw Error("Expected error")
 }
 
 fun getNullableString(param: Int) : String? {

@@ -4530,8 +4530,7 @@ dynamicTest("produce_dynamic") {
                 "topLevel = 777 3\n" +
                 "IsInstance1 = PASS\n" +
                 "IsInstance2 = PASS\n" +
-                "getVector128 = (1, 2, 3, 4)\n" +
-                "Error handler: kotlin.Error: Expected error\n"
+                "getVector128 = (1, 2, 3, 4)\n"
 }
 
 dynamicTest("kt36639") {
@@ -4545,6 +4544,13 @@ dynamicTest("kt36639") {
                    |Int::extfoo
                    |Int::extfoo
                    |""".stripMargin()
+}
+
+dynamicTest("c_exception_handler") {
+    disabled = (project.target.name != project.hostName)
+    source = "produce_dynamic/c_exception_handler/main.kt"
+    cSource = "$projectDir/produce_dynamic/c_exception_handler/main.c"
+    goldValue = "Error handler: kotlin.Error: Expected error\n"
 }
 
 dynamicTest("interop_concurrentRuntime") {

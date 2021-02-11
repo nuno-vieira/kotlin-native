@@ -5,10 +5,6 @@
 #define T_(x) testlib_kref_ ## x
 #define CAST(T, v) testlib_kref_ ## T { .pinned = v }
 
-void errorHandler(const char* str) {
-  printf("Error handler: %s\n", str);
-}
-
 void testVector128() {
     int __attribute__ ((__vector_size__ (16))) v4f = __ kotlin.root.getVector128();
     printf("getVector128 = (%d, %d, %d, %d)\n",  v4f[0],  v4f[1],  v4f[2],  v4f[3]);
@@ -100,9 +96,6 @@ int main(void) {
     __ DisposeStablePointer(object1.pinned);
     __ DisposeStablePointer(nullableInt.pinned);
     __ DisposeStablePointer(enum2.pinned);
-
-    __ kotlin.root.setCErrorHandler(&errorHandler);
-    __ kotlin.root.throwException();
 
     return 0;
 }
