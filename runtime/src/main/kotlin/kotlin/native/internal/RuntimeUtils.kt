@@ -7,6 +7,7 @@ package kotlin.native.internal
 
 import kotlin.internal.getProgressionLastElement
 import kotlin.reflect.KClass
+import kotlin.native.concurrent.AtomicReference
 
 @ExportForCppRuntime
 fun ThrowNullPointerException(): Nothing {
@@ -118,10 +119,18 @@ internal fun ReportUnhandledException(throwable: Throwable) {
 @SymbolName("TerminateWithUnhandledException")
 internal external fun TerminateWithUnhandledException(throwable: Throwable)
 
+internal val unhandledExceptionHook: AtomicReference<ReportUnhandledExceptionHook?> = AtomicReference(null)
+
+@PublishedApi
 @ExportForCppRuntime
-internal fun ExceptionReporterLaunchpad(reporter: (Throwable) -> Unit, throwable: Throwable) {
+internal fun OnUnhandledException(throwable: Throwable) {
+    val handler = unhandledExceptionHook.swap(null)
+    if (handler == null) {
+        ReportUnhandledException(throwable);
+        return
+    }
     try {
-        reporter(throwable)
+        handler(throwable)
     } catch (t: Throwable) {
         ReportUnhandledException(t)
     }
@@ -210,8 +219,3 @@ internal fun <T> listOfInternal(vararg elements: T): List<T> {
         result.add(elements[i])
     return result
 }
-
-
-@PublishedApi
-@SymbolName("OnUnhandledException")
-external internal fun OnUnhandledException(throwable: Throwable)
