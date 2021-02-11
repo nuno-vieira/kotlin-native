@@ -5,6 +5,7 @@
 
 package runtime.collections.hash_map1
 
+import kotlin.native.internal.GC
 import kotlin.test.*
 
 fun assertTrue(cond: Boolean) {
@@ -86,7 +87,15 @@ fun testClear() {
 }
 
 @Test fun runTest() {
-    testRehashAndCompact()
-    testClear()
+    val oldThreshold = GC.threshold
+    // TODO: Do not manually control this.
+    GC.threshold = 1000000
+    GC.thresholdAllocations = 1000000
+    try {
+        testRehashAndCompact()
+        testClear()
+    } finally {
+        GC.threshold = oldThreshold
+    }
     println("OK")
 }

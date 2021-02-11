@@ -36,29 +36,29 @@ inline void traverseObjectFields(ObjHeader* obj, func process) {
 } // namespace
 
 void mm::MarkAndSweep::ThreadData::SafePointFunctionEpilogue() noexcept {
-    if (kSafePointsThreshold == 0 || (safePointsCounter_ + 1) % kSafePointsThreshold == 0) {
+    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
 }
 
 void mm::MarkAndSweep::ThreadData::SafePointLoopBody() noexcept {
-    if (kSafePointsThreshold == 0 || (safePointsCounter_ + 1) % kSafePointsThreshold == 0) {
+    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
 }
 
 void mm::MarkAndSweep::ThreadData::SafePointExceptionUnwind() noexcept {
-    if (kSafePointsThreshold == 0 || (safePointsCounter_ + 1) % kSafePointsThreshold == 0) {
+    if (gc_.GetThreshold() == 0 || (safePointsCounter_ + 1) % gc_.GetThreshold() == 0) {
         PerformFullGC();
     }
     ++safePointsCounter_;
 }
 
 void mm::MarkAndSweep::ThreadData::SafePointAllocation(size_t size) noexcept {
-    size_t allocationOverhead = kAllocationThresholdBytes == 0 ? allocatedBytes_ : allocatedBytes_ % kAllocationThresholdBytes;
-    if (allocationOverhead + size >= kAllocationThresholdBytes) {
+    size_t allocationOverhead = gc_.GetAllocationThresholdBytes() == 0 ? allocatedBytes_ : allocatedBytes_ % gc_.GetAllocationThresholdBytes();
+    if (allocationOverhead + size >= gc_.GetAllocationThresholdBytes()) {
         PerformFullGC();
     }
     allocatedBytes_ += size;

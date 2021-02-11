@@ -55,8 +55,6 @@ public:
         MarkAndSweep& gc_;
         size_t allocatedBytes_ = 0;
         size_t safePointsCounter_ = 0;
-        static constexpr size_t kAllocationThresholdBytes = 1000;
-        static constexpr size_t kSafePointsThreshold = 100;
     };
 
     class Collection {
@@ -75,11 +73,20 @@ public:
     explicit MarkAndSweep(ObjectFactory<MarkAndSweep>& objectFactory) noexcept : objectFactory_(objectFactory) {}
     ~MarkAndSweep() = default;
 
+    void SetThreshold(size_t value) noexcept { threshold_ = value; }
+    size_t GetThreshold() noexcept { return threshold_; }
+
+    void SetAllocationThresholdBytes(size_t value) noexcept { allocationThresholdBytes_ = value; }
+    size_t GetAllocationThresholdBytes() noexcept { return allocationThresholdBytes_; }
+
 private:
     void PerformFullGC() noexcept;
 
     KStdUniquePtr<Collection> currentCollection_;
     ObjectFactory<MarkAndSweep>& objectFactory_;
+
+    size_t threshold_ = 100;
+    size_t allocationThresholdBytes_ = 1000;
 };
 
 } // namespace mm

@@ -2397,7 +2397,6 @@ task hash_map0(type: KonanLocalTest) {
 }
 
 task hash_map1(type: KonanLocalTest) {
-    enabled = !isExperimentalMM // Too long
     goldValue = "OK\n"
     source = "runtime/collections/hash_map1.kt"
 }
