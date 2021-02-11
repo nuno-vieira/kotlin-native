@@ -388,14 +388,14 @@ class State {
   // Returns `true` if something was indeed processed.
   bool processQueueUnlocked(KInt id) {
     // Can only process queue of the current worker.
-    if (::g_worker == nullptr || id != ::g_worker->id()) callKotlin(ThrowWorkerInvalidState);
+    if (::g_worker == nullptr || id != ::g_worker->id()) callKotlinNoReturn(ThrowWorkerInvalidState);
     JobKind kind = ::g_worker->processQueueElement(false);
     return kind != JOB_NONE && kind != JOB_TERMINATE;
   }
 
   bool parkUnlocked(KInt id, KLong timeoutMicroseconds, KBoolean process) {
       // Can only park current worker.
-      if (::g_worker == nullptr || id != ::g_worker->id()) callKotlin(ThrowWorkerInvalidState);
+      if (::g_worker == nullptr || id != ::g_worker->id()) callKotlinNoReturn(ThrowWorkerInvalidState);
       return ::g_worker->park(timeoutMicroseconds, process);
   }
 
@@ -411,7 +411,7 @@ class State {
     {
       Locker locker(&lock_);
       auto it = futures_.find(id);
-      if (it == futures_.end()) callKotlin(ThrowWorkerInvalidState);
+      if (it == futures_.end()) callKotlinNoReturn(ThrowWorkerInvalidState);
       future = it->second;
     }
 
@@ -433,7 +433,7 @@ class State {
     Locker locker(&lock_);
     auto it = workers_.find(id);
     if (it == workers_.end()) {
-      callKotlin(ThrowWorkerInvalidState);
+      callKotlinNoReturn(ThrowWorkerInvalidState);
     }
     
     // Root set mutating via a ObjHolder -> switch thread state to runnable.
@@ -591,7 +591,7 @@ KInt startWorker(KBoolean errorReporting, KRef customName) {
 }
 
 KInt currentWorker() {
-  if (g_worker == nullptr) callKotlin(ThrowWorkerInvalidState);
+  if (g_worker == nullptr) callKotlinNoReturn(ThrowWorkerInvalidState);
   return ::g_worker->id();
 }
 
@@ -606,13 +606,13 @@ KInt execute(KInt id, KInt transferMode, KRef producer, KNativePtr jobFunction) 
   }
 
   Future* future = theState()->addJobToWorkerUnlocked(id, jobFunction, jobArgument, false, transferMode);
-  if (future == nullptr) callKotlin(ThrowWorkerInvalidState);
+  if (future == nullptr) callKotlinNoReturn(ThrowWorkerInvalidState);
   return future->id();
 }
 
 void executeAfter(KInt id, KRef job, KLong afterMicroseconds) {
   if (!theState()->executeJobAfterInWorkerUnlocked(id, job, afterMicroseconds))
-    callKotlin(ThrowWorkerInvalidState);
+    callKotlinNoReturn(ThrowWorkerInvalidState);
 }
 
 KBoolean processQueue(KInt id) {
@@ -638,7 +638,7 @@ OBJ_GETTER(getWorkerName, KInt id) {
 KInt requestTermination(KInt id, KBoolean processScheduledJobs) {
   Future* future = theState()->addJobToWorkerUnlocked(
       id, nullptr, nullptr, /* toFront = */ !processScheduledJobs, UNCHECKED);
-  if (future == nullptr) callKotlin(ThrowWorkerInvalidState);
+  if (future == nullptr) callKotlinNoReturn(ThrowWorkerInvalidState);
   return future->id();
 }
 
@@ -669,51 +669,51 @@ KNativePtr detachObjectGraphInternal(KInt transferMode, KRef producer) {
 #else
 
 KInt startWorker(KBoolean errorReporting, KRef customName) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KInt stateOfFuture(KInt id) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KInt execute(KInt id, KInt transferMode, KRef producer, KNativePtr jobFunction) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 void executeAfter(KInt id, KRef job, KLong afterMicroseconds) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KBoolean processQueue(KInt id) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KBoolean park(KInt id, KLong timeoutMicroseconds, KBoolean process) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KInt currentWorker() {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 OBJ_GETTER(consumeFuture, KInt id) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 OBJ_GETTER(getWorkerName, KInt id) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KInt requestTermination(KInt id, KBoolean processScheduledJobs) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KBoolean waitForAnyFuture(KInt versionToken, KInt millis) {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 KInt versionToken() {
-  callKotlin(ThrowWorkerUnsupported);
+  callKotlinNoReturn(ThrowWorkerUnsupported);
 }
 
 // Runs in the runnable thread state.

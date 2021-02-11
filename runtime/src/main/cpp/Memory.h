@@ -410,6 +410,13 @@ ALWAYS_INLINE R callKotlin(R(*kotlinFunction)(Args...), Args... args) {
     return kotlinFunction(args...);
 }
 
+// TODO: May be make it a macro?
+template <typename... Args>
+ALWAYS_INLINE RUNTIME_NORETURN void callKotlinNoReturn(void(*kotlinFunction)(Args...), Args... args) {
+    callKotlin(kotlinFunction, args...);
+    __builtin_unreachable();
+}
+
 } // namespace kotlin
 
 #endif // RUNTIME_MEMORY_H
