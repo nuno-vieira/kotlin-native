@@ -82,6 +82,7 @@ void mm::MarkAndSweep::Collection::Mark() noexcept {
         // TODO: Probably not the place for it.
         if (top == reinterpret_cast<ObjHeader*>(1)) continue;
 
+        // TODO: Also weak reference needs to be accounted for.
 
         if (top->heap()) {
             auto& objectData = mm::ObjectFactory<MarkAndSweep>::NodeRef::From(top).GCObjectData();
