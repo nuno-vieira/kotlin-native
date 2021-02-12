@@ -3,6 +3,7 @@
  * that can be found in the LICENSE file.
  */
 
+#include <iostream>
 #include "Memory.h"
 
 #include "Exceptions.h"

@@ -71,119 +71,142 @@ testing::MockFunction<void(ObjHeader*)>* InitSingletonTest::globalConstructor_ =
 } // namespace
 
 TEST_F(InitSingletonTest, InitThreadLocalSingleton) {
-    ObjHeader* location = nullptr;
-    ObjHeader* stackLocation = nullptr;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader* location = nullptr;
+        ObjHeader* stackLocation = nullptr;
 
-    ObjHeader* valueAtConstructor = nullptr;
-    EXPECT_CALL(constructor(), Call(_)).WillOnce([&location, &stackLocation, &valueAtConstructor](ObjHeader* value) {
+        ObjHeader* valueAtConstructor = nullptr;
+        EXPECT_CALL(constructor(), Call(_)).WillOnce(
+                [&location, &stackLocation, &valueAtConstructor](ObjHeader* value) {
+                    EXPECT_THAT(value, stackLocation);
+                    EXPECT_THAT(value, location);
+                    valueAtConstructor = value;
+                });
+        ObjHeader* value = InitThreadLocalSingleton(&location, 0, &stackLocation);
         EXPECT_THAT(value, stackLocation);
         EXPECT_THAT(value, location);
-        valueAtConstructor = value;
+        EXPECT_THAT(valueAtConstructor, location);
     });
-    ObjHeader* value = InitThreadLocalSingleton(&location, 0, &stackLocation);
-    EXPECT_THAT(value, stackLocation);
-    EXPECT_THAT(value, location);
-    EXPECT_THAT(valueAtConstructor, location);
 }
 
 TEST_F(InitSingletonTest, InitThreadLocalSingletonTwice) {
-    ObjHeader previousValue;
-    ObjHeader* location = &previousValue;
-    ObjHeader* stackLocation = nullptr;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader previousValue;
+        ObjHeader* location = &previousValue;
+        ObjHeader* stackLocation = nullptr;
 
-    EXPECT_CALL(constructor(), Call(_)).Times(0);
-    ObjHeader* value = InitThreadLocalSingleton(&location, 0, &stackLocation);
-    EXPECT_THAT(value, stackLocation);
-    EXPECT_THAT(value, location);
-    EXPECT_THAT(value, &previousValue);
+        EXPECT_CALL(constructor(), Call(_)).Times(0);
+        ObjHeader* value = InitThreadLocalSingleton(&location, 0, &stackLocation);
+        EXPECT_THAT(value, stackLocation);
+        EXPECT_THAT(value, location);
+        EXPECT_THAT(value, &previousValue);
+    });
 }
 
 TEST_F(InitSingletonTest, InitThreadLocalSingletonFail) {
-    ObjHeader* location = nullptr;
-    ObjHeader* stackLocation = nullptr;
-    constexpr int kException = 42;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader* location = nullptr;
+        ObjHeader* stackLocation = nullptr;
+        constexpr int kException = 42;
 
-    EXPECT_CALL(constructor(), Call(_)).WillOnce([]() { throw kException; });
-    try {
-        InitThreadLocalSingleton(&location, 0, &stackLocation);
-        ASSERT_TRUE(false); // Cannot be reached.
-    } catch (int exception) {
-        EXPECT_THAT(exception, kException);
-    }
-    EXPECT_THAT(stackLocation, nullptr);
-    EXPECT_THAT(location, nullptr);
+        EXPECT_CALL(constructor(), Call(_)).WillOnce([]() { throw kException; });
+        try {
+            InitThreadLocalSingleton(&location, 0, &stackLocation);
+            ASSERT_TRUE(false); // Cannot be reached.
+        } catch (int exception) {
+            EXPECT_THAT(exception, kException);
+        }
+        EXPECT_THAT(stackLocation, nullptr);
+        EXPECT_THAT(location, nullptr);
+    });
 }
 
 TEST_F(InitSingletonTest, InitSingleton) {
-    ObjHeader* location = nullptr;
-    ObjHeader* stackLocation = nullptr;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader* location = nullptr;
+        ObjHeader* stackLocation = nullptr;
 
-    ObjHeader* valueAtConstructor = nullptr;
-    EXPECT_CALL(constructor(), Call(_)).WillOnce([&location, &stackLocation, &valueAtConstructor](ObjHeader* value) {
+        ObjHeader* valueAtConstructor = nullptr;
+        EXPECT_CALL(constructor(), Call(_)).WillOnce(
+                [&location, &stackLocation, &valueAtConstructor](ObjHeader* value) {
+                    EXPECT_THAT(value, stackLocation);
+                    EXPECT_THAT(location, reinterpret_cast<ObjHeader*>(1));
+                    valueAtConstructor = value;
+                });
+        ObjHeader* value = InitSingleton(&location, 0, &stackLocation);
         EXPECT_THAT(value, stackLocation);
-        EXPECT_THAT(location, reinterpret_cast<ObjHeader*>(1));
-        valueAtConstructor = value;
+        EXPECT_THAT(value, location);
+        EXPECT_THAT(valueAtConstructor, location);
     });
-    ObjHeader* value = InitSingleton(&location, 0, &stackLocation);
-    EXPECT_THAT(value, stackLocation);
-    EXPECT_THAT(value, location);
-    EXPECT_THAT(valueAtConstructor, location);
 }
 
 TEST_F(InitSingletonTest, InitSingletonTwice) {
-    ObjHeader previousValue;
-    ObjHeader* location = &previousValue;
-    ObjHeader* stackLocation = nullptr;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader previousValue;
+        ObjHeader* location = &previousValue;
+        ObjHeader* stackLocation = nullptr;
 
-    EXPECT_CALL(constructor(), Call(_)).Times(0);
-    ObjHeader* value = InitSingleton(&location, 0, &stackLocation);
-    EXPECT_THAT(value, stackLocation);
-    EXPECT_THAT(value, location);
-    EXPECT_THAT(value, &previousValue);
+        EXPECT_CALL(constructor(), Call(_)).Times(0);
+        ObjHeader* value = InitSingleton(&location, 0, &stackLocation);
+        EXPECT_THAT(value, stackLocation);
+        EXPECT_THAT(value, location);
+        EXPECT_THAT(value, &previousValue);
+    });
 }
 
 TEST_F(InitSingletonTest, InitSingletonFail) {
-    ObjHeader* location = nullptr;
-    ObjHeader* stackLocation = nullptr;
-    constexpr int kException = 42;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        ObjHeader* location = nullptr;
+        ObjHeader* stackLocation = nullptr;
+        constexpr int kException = 42;
 
-    EXPECT_CALL(constructor(), Call(_)).WillOnce([]() { throw kException; });
-    try {
-        InitSingleton(&location, 0, &stackLocation);
-        ASSERT_TRUE(false); // Cannot be reached.
-    } catch (int exception) {
-        EXPECT_THAT(exception, kException);
-    }
-    EXPECT_THAT(stackLocation, nullptr);
-    EXPECT_THAT(location, nullptr);
+        EXPECT_CALL(constructor(), Call(_)).WillOnce([]() { throw kException; });
+        try {
+            InitSingleton(&location, 0, &stackLocation);
+            ASSERT_TRUE(false); // Cannot be reached.
+        } catch (int exception) {
+            EXPECT_THAT(exception, kException);
+        }
+        EXPECT_THAT(stackLocation, nullptr);
+        EXPECT_THAT(location, nullptr);
+    });
 }
 
 TEST_F(InitSingletonTest, InitSingletonRecursive) {
-    // The first singleton. Its constructor depends on the second singleton.
-    ObjHeader* location1 = nullptr;
-    ObjHeader* stackLocation1 = nullptr;
-    // The second singleton. Its constructor depends on the first singleton.
-    ObjHeader* location2 = nullptr;
-    ObjHeader* stackLocation2 = nullptr;
+    // Singleton initialization requires initlialized memory subsystem.
+    RunInManagedThread([this]() {
+        // The first singleton. Its constructor depends on the second singleton.
+        ObjHeader* location1 = nullptr;
+        ObjHeader* stackLocation1 = nullptr;
+        // The second singleton. Its constructor depends on the first singleton.
+        ObjHeader* location2 = nullptr;
+        ObjHeader* stackLocation2 = nullptr;
 
-    EXPECT_CALL(constructor(), Call(_))
-            .Times(2) // called only once for each singleton.
-            .WillRepeatedly([this, &location1, &stackLocation1, &location2, &stackLocation2](ObjHeader* value) {
-                if (value == stackLocation1) {
-                    ObjHeader* result = InitSingleton(&location2, 0, &stackLocation2);
-                    EXPECT_THAT(result, stackLocation2);
-                    EXPECT_THAT(result, location2);
-                    EXPECT_THAT(result, testing::Ne(reinterpret_cast<ObjHeader*>(1)));
-                } else {
-                    ObjHeader* result = InitSingleton(&location1, 0, &stackLocation1);
-                    EXPECT_THAT(result, stackLocation1);
-                    EXPECT_THAT(result, testing::Ne(location1));
-                    EXPECT_THAT(location1, reinterpret_cast<ObjHeader*>(1));
-                }
-            });
-    ObjHeader* value = InitSingleton(&location1, 0, &stackLocation1);
-    EXPECT_THAT(value, stackLocation1);
-    EXPECT_THAT(value, location1);
+        EXPECT_CALL(constructor(), Call(_))
+                .Times(2) // called only once for each singleton.
+                .WillRepeatedly([this, &location1, &stackLocation1, &location2, &stackLocation2](ObjHeader* value) {
+                    if (value == stackLocation1) {
+                        ObjHeader* result = InitSingleton(&location2, 0, &stackLocation2);
+                        EXPECT_THAT(result, stackLocation2);
+                        EXPECT_THAT(result, location2);
+                        EXPECT_THAT(result, testing::Ne(reinterpret_cast<ObjHeader*>(1)));
+                    } else {
+                        ObjHeader* result = InitSingleton(&location1, 0, &stackLocation1);
+                        EXPECT_THAT(result, stackLocation1);
+                        EXPECT_THAT(result, testing::Ne(location1));
+                        EXPECT_THAT(location1, reinterpret_cast<ObjHeader*>(1));
+                    }
+                });
+        ObjHeader* value = InitSingleton(&location1, 0, &stackLocation1);
+        EXPECT_THAT(value, stackLocation1);
+        EXPECT_THAT(value, location1);
+    });
 }
 
 TEST_F(InitSingletonTest, InitSingletonConcurrent) {
@@ -197,6 +220,8 @@ TEST_F(InitSingletonTest, InitSingletonConcurrent) {
 
     for (size_t i = 0; i < kThreadCount; ++i) {
         threads.emplace_back([this, i, &location, &stackLocations, &actual, &readyCount, &canStart]() {
+            // Singleton initialization requires initialized memory subsystem.
+            MemoryInitGuard initGuard;
             ++readyCount;
             while (!canStart) {
             }
@@ -231,6 +256,8 @@ TEST_F(InitSingletonTest, InitSingletonConcurrentFailing) {
 
     for (size_t i = 0; i < kThreadCount; ++i) {
         threads.emplace_back([this, i, &location, &stackLocations, &readyCount, &canStart]() {
+            // Singleton initialization requires initialized memory subsystem.
+            MemoryInitGuard initGuard;
             ++readyCount;
             while (!canStart) {
             }
